@@ -464,6 +464,29 @@
     try { localStorage.setItem("ima-theme", next); } catch (e) {}
   });
 
+  // 防御：自动移除非本页产生的固定定位覆盖层（如预览环境加载条卡死等）
+  (function () {
+    var KNOWN_IDS = { modalBack: 1, app: 1 };
+    function sweep() {
+      var all = document.querySelectorAll("*");
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        if (KNOWN_IDS[el.id]) continue;
+        var cs = getComputedStyle(el);
+        if ((cs.position === "fixed" || cs.position === "absolute") &&
+            parseInt(cs.zIndex || 0, 10) >= 40 &&
+            el.offsetWidth > 100 && el.offsetHeight < 200 &&
+            el !== document.body && el !== document.documentElement) {
+          console.warn("[ima-site] 清除异常覆盖层:", el.tagName, "#" + el.id, "." + el.className);
+          el.style.display = "none";
+        }
+      }
+    }
+    setTimeout(sweep, 800);
+    new MutationObserver(function () { setTimeout(sweep, 100); })
+      .observe(document.body, { childList: true, subtree: true });
+  })();
+
   // init
   ITEMS.forEach(function (it, i) { it.__i = i; });
   statCount.textContent = ITEMS.length;
