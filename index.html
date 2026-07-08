@@ -231,6 +231,7 @@
     animation: pop .18s ease;
   }
   @keyframes pop { from { transform: translateY(8px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-backdrop[hidden] { display: none !important; }
   .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
   .cat-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600;
     padding: 5px 12px; border-radius: var(--radius-full); color: #fff;
@@ -466,7 +467,7 @@
 
   // 防御：自动移除非本页产生的固定定位覆盖层（如预览环境加载条卡死等）
   (function () {
-    var KNOWN_IDS = { modalBack: 1, app: 1 };
+    var KNOWN_IDS = { app: 1 };
     function sweep() {
       var all = document.querySelectorAll("*");
       for (var i = 0; i < all.length; i++) {
