@@ -1,0 +1,475 @@
+<!doctype html>
+<html data-theme="dark" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石头的知识库 · 在线索引</title>
+
+<!-- Astryx design system: official reset (normalize) via CDN (no build step).
+     Visual tokens + components below are built on Astryx's token vocabulary
+     (colors / radius / shadow / spacing / type scale) for an authentic look
+     while keeping the site build-free and the dark/light toggle fully reliable. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@astryxdesign/core@0.1.3/src/reset.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Fallback design tokens (Astryx vocabulary). Overridden by the CDN CSS when it loads;
+     guarantees a correct look even if the CDN is unreachable. -->
+<style id="tokens">
+  :root {
+    --color-background-body: #f4f5f7;
+    --color-background-surface: #ffffff;
+    --color-background-card: #ffffff;
+    --color-background-popover: #ffffff;
+    --color-text-primary: #1c1e21;
+    --color-text-secondary: #5b6470;
+    --color-text-disabled: #9aa1ab;
+    --color-border: #e6e8ec;
+    --color-border-emphasized: #d2d6dd;
+    --color-accent: #2f6bff;
+    --color-on-accent: #ffffff;
+    --color-overlay: rgba(15, 18, 25, 0.42);
+    --radius-container: 18px;
+    --radius-element: 12px;
+    --radius-full: 999px;
+    --shadow-low: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --shadow-med: 0 8px 24px rgba(16, 24, 40, 0.12);
+    --shadow-high: 0 20px 48px rgba(16, 24, 40, 0.20);
+    --font-family-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  [data-theme="dark"] {
+    --color-background-body: #0e1014;
+    --color-background-surface: #161922;
+    --color-background-card: #1a1e29;
+    --color-background-popover: #1f2430;
+    --color-text-primary: #e9ebef;
+    --color-text-secondary: #98a0ad;
+    --color-text-disabled: #5d656f;
+    --color-border: #272c38;
+    --color-border-emphasized: #353c4b;
+    --color-accent: #5b8bff;
+    --color-on-accent: #0e1014;
+    --color-overlay: rgba(0, 0, 0, 0.55);
+    --shadow-low: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-med: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-high: 0 20px 48px rgba(0, 0, 0, 0.6);
+  }
+</style>
+
+<style id="app">
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-family-body);
+    background: var(--color-background-body);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+  }
+  ::selection { background: color-mix(in srgb, var(--color-accent) 28%, transparent); }
+
+  #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 14px 24px;
+    background: color-mix(in srgb, var(--color-background-surface) 86%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 12px; flex: none;
+    display: grid; place-items: center; font-weight: 700; font-size: 20px; color: #fff;
+    background: linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 55%, #9b5bff));
+    box-shadow: var(--shadow-low);
+  }
+  .brand-text { min-width: 0; }
+  .brand-text h1 { font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 12px; color: var(--color-text-secondary); }
+
+  .topbar-actions { display: flex; align-items: center; gap: 12px; }
+  .stat-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 13px; border-radius: var(--radius-full);
+    background: var(--color-background-card); border: 1px solid var(--color-border);
+    font-size: 13px; color: var(--color-text-secondary); white-space: nowrap;
+  }
+  .stat-pill b { color: var(--color-text-primary); font-weight: 700; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
+    border: 1px solid var(--color-border); background: var(--color-background-card);
+    color: var(--color-text-primary); font-size: 18px; line-height: 1;
+    display: grid; place-items: center; transition: transform .15s ease, border-color .15s ease;
+  }
+  .icon-btn:hover { border-color: var(--color-border-emphasized); transform: translateY(-1px); }
+  .icon-btn:active { transform: translateY(0); }
+
+  /* ---------- Layout ---------- */
+  .layout { flex: 1; display: grid; grid-template-columns: 256px 1fr; align-items: start; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: sticky; top: 71px; align-self: start;
+    height: calc(100vh - 71px); overflow-y: auto;
+    padding: 18px 14px; border-right: 1px solid var(--color-border);
+  }
+  .cat-nav { display: flex; flex-direction: column; gap: 4px; }
+  .nav-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--color-text-disabled); padding: 4px 10px 8px; }
+  .cat-item {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    padding: 9px 11px; border-radius: var(--radius-element); cursor: pointer;
+    border: 1px solid transparent; background: transparent; color: var(--color-text-secondary);
+    font-family: inherit; font-size: 14px; text-align: left; transition: background .14s ease, color .14s ease;
+  }
+  .cat-item:hover { background: color-mix(in srgb, var(--color-text-primary) 7%, transparent); color: var(--color-text-primary); }
+  .cat-item.active {
+    background: color-mix(in srgb, var(--cat, var(--color-accent)) 16%, transparent);
+    border-color: color-mix(in srgb, var(--cat, var(--color-accent)) 45%, transparent);
+    color: var(--color-text-primary);
+  }
+  .cat-ico { font-size: 17px; width: 22px; text-align: center; flex: none; }
+  .cat-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .cat-count {
+    flex: none; font-size: 12px; font-variant-numeric: tabular-nums;
+    padding: 2px 9px; border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+    color: var(--color-text-secondary);
+  }
+  .cat-item.active .cat-count { background: color-mix(in srgb, var(--cat, var(--color-accent)) 26%, transparent); color: var(--color-text-primary); }
+
+  /* ---------- Content ---------- */
+  .content { padding: 22px 26px 64px; min-width: 0; }
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .search {
+    position: relative; flex: 1; min-width: 220px;
+  }
+  .search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--color-text-secondary); }
+  .search input {
+    width: 100%; padding: 11px 14px 11px 40px; font-size: 14px; font-family: inherit;
+    color: var(--color-text-primary); background: var(--color-background-card);
+    border: 1px solid var(--color-border); border-radius: var(--radius-element); outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .search input::placeholder { color: var(--color-text-disabled); }
+  .search input:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent); }
+
+  .select {
+    padding: 11px 14px; font-size: 14px; font-family: inherit; cursor: pointer;
+    color: var(--color-text-primary); background: var(--color-background-card);
+    border: 1px solid var(--color-border); border-radius: var(--radius-element); outline: none;
+  }
+  .select:focus { border-color: var(--color-accent); }
+
+  .active-tag {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 14px;
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+    border-radius: var(--radius-full); font-size: 13px; color: var(--color-text-primary);
+  }
+  .active-tag b { font-weight: 600; }
+  .active-tag button {
+    width: 22px; height: 22px; border-radius: 50%; border: none; cursor: pointer;
+    background: color-mix(in srgb, var(--color-accent) 26%, transparent); color: var(--color-text-primary);
+    font-size: 14px; line-height: 1; display: grid; place-items: center;
+  }
+  .active-tag button:hover { background: color-mix(in srgb, var(--color-accent) 40%, transparent); }
+
+  /* ---------- Card grid ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+  .card {
+    --cat: var(--color-accent);
+    position: relative; display: flex; flex-direction: column; gap: 10px;
+    padding: 16px 16px 16px 18px; border-radius: var(--radius-container);
+    background: var(--color-background-card); border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-low); cursor: pointer; overflow: hidden;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--cat); opacity: .9;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-med); border-color: color-mix(in srgb, var(--cat) 45%, var(--color-border)); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .type-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--cat) 15%, transparent); color: var(--color-text-primary);
+    border: 1px solid color-mix(in srgb, var(--cat) 34%, transparent);
+  }
+  .card-date { font-size: 12px; color: var(--color-text-disabled); font-variant-numeric: tabular-nums; }
+  .card-title { font-size: 15px; font-weight: 600; margin: 0; line-height: 1.4; letter-spacing: -0.01em;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-sum { font-size: 13px; color: var(--color-text-secondary); margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .chip {
+    font-size: 11.5px; padding: 3px 9px; border-radius: var(--radius-full); cursor: pointer;
+    background: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+    border: 1px solid var(--color-border); color: var(--color-text-secondary); font-family: inherit;
+    transition: background .14s ease, color .14s ease;
+  }
+  .chip:hover { background: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-text-primary); border-color: color-mix(in srgb, var(--color-accent) 36%, transparent); }
+
+  .empty { text-align: center; color: var(--color-text-secondary); padding: 80px 20px; font-size: 15px; }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px;
+    background: var(--color-overlay); backdrop-filter: blur(4px); animation: fade .15s ease;
+  }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    --cat: var(--color-accent);
+    width: min(560px, 100%); max-height: 84vh; overflow-y: auto;
+    background: var(--color-background-popover); border: 1px solid var(--color-border);
+    border-radius: var(--radius-container); box-shadow: var(--shadow-high); padding: 24px;
+    animation: pop .18s ease;
+  }
+  @keyframes pop { from { transform: translateY(8px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .cat-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600;
+    padding: 5px 12px; border-radius: var(--radius-full); color: #fff;
+    background: var(--cat); }
+  .modal-close { width: 34px; height: 34px; flex: none; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--color-border); background: transparent; color: var(--color-text-secondary); font-size: 18px; line-height: 1; }
+  .modal-close:hover { color: var(--color-text-primary); border-color: var(--color-border-emphasized); }
+  .modal-title { font-size: 20px; font-weight: 700; margin: 0 0 12px; letter-spacing: -0.01em; line-height: 1.35; }
+  .modal-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .meta-item { font-size: 12.5px; padding: 4px 11px; border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--color-text-primary) 6%, transparent); color: var(--color-text-secondary); }
+  .modal-sum { font-size: 14.5px; color: var(--color-text-primary); line-height: 1.65; margin: 0 0 16px; }
+  .modal-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--color-border); }
+    .cat-nav { flex-direction: row; flex-wrap: wrap; }
+    .cat-item { width: auto; }
+    .nav-label { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">石</div>
+      <div class="brand-text">
+        <h1>石头的知识库</h1>
+        <div class="brand-sub">在线索引 · Astryx Design System</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="stat-pill"><b id="statCount">0</b> 条内容</span>
+      <button class="icon-btn" id="themeToggle" title="切换深色 / 浅色" aria-label="切换主题">🌓</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <nav class="cat-nav" id="catNav"></nav>
+    </aside>
+
+    <main class="content">
+      <div class="toolbar">
+        <div class="search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="searchInput" type="search" placeholder="搜索标题、摘要、标签…" autocomplete="off" />
+        </div>
+        <select class="select" id="sortSelect" aria-label="排序">
+          <option value="desc">最新优先</option>
+          <option value="asc">最早优先</option>
+        </select>
+        <div class="active-tag" id="activeTagWrap" hidden>
+          <span>标签：<b id="activeTag"></b></span>
+          <button id="clearTag" title="清除筛选">×</button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" hidden>没有匹配的内容，换个关键词或标签试试。</div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBack" hidden>
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <span class="cat-pill" id="modalCat"></span>
+      <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+    </div>
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <div class="modal-meta" id="modalMeta"></div>
+    <p class="modal-sum" id="modalSum"></p>
+    <div class="modal-tags" id="modalTags"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var catMap = {};
+  CATEGORIES.forEach(function (c) { catMap[c.id] = c; });
+
+  var state = { cat: "all", q: "", tag: null, sort: "desc" };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var grid = $("grid"), empty = $("empty"), catNav = $("catNav"), statCount = $("statCount");
+
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+    });
+  };
+  var hexA = function (hex, a) {
+    var h = hex.replace("#", "");
+    if (h.length === 3) h = h.split("").map(function (x) { return x + x; }).join("");
+    var n = parseInt(h, 16);
+    return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+  };
+
+  function counts() {
+    var c = { all: ITEMS.length };
+    CATEGORIES.forEach(function (k) { c[k.id] = 0; });
+    ITEMS.forEach(function (it) { if (c[it.c] != null) c[it.c]++; });
+    return c;
+  }
+
+  function buildNav() {
+    var c = counts();
+    var html = '<div class="nav-label">分类</div>';
+    html += navItem("all", "📚", "全部", c.all, null);
+    CATEGORIES.forEach(function (k) {
+      html += navItem(k.id, k.icon, k.name, c[k.id], k.color);
+    });
+    catNav.innerHTML = html;
+    Array.prototype.forEach.call(catNav.querySelectorAll(".cat-item"), function (el) {
+      el.addEventListener("click", function () {
+        state.cat = el.getAttribute("data-cat");
+        syncNav();
+        render();
+      });
+    });
+    syncNav();
+  }
+  function navItem(id, icon, name, count, color) {
+    var style = color ? ' style="--cat:' + esc(color) + '"' : "";
+    return '<button class="cat-item" data-cat="' + esc(id) + '"' + style + '>' +
+      '<span class="cat-ico">' + esc(icon) + '</span>' +
+      '<span class="cat-name">' + esc(name) + '</span>' +
+      '<span class="cat-count">' + count + '</span></button>';
+  }
+  function syncNav() {
+    Array.prototype.forEach.call(catNav.querySelectorAll(".cat-item"), function (el) {
+      el.classList.toggle("active", el.getAttribute("data-cat") === String(state.cat));
+    });
+  }
+
+  function filtered() {
+    var q = state.q.trim().toLowerCase();
+    var list = ITEMS.filter(function (it) {
+      if (state.cat !== "all" && it.c !== state.cat) return false;
+      if (state.tag && (it.tags || []).indexOf(state.tag) === -1) return false;
+      if (q) {
+        var hay = (it.t + " " + it.s + " " + (it.tags || []).join(" ") + " " + it.ty).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    list.sort(function (a, b) {
+      return state.sort === "asc" ? a.d.localeCompare(b.d) : b.d.localeCompare(a.d);
+    });
+    return list;
+  }
+
+  function render() {
+    var list = filtered();
+    grid.innerHTML = list.map(cardHTML).join("");
+    empty.hidden = list.length !== 0;
+    Array.prototype.forEach.call(grid.querySelectorAll(".card"), function (el) {
+      el.addEventListener("click", function () { openModal(+el.getAttribute("data-i")); });
+    });
+    Array.prototype.forEach.call(grid.querySelectorAll(".chip"), function (el) {
+      el.addEventListener("click", function (e) {
+        e.stopPropagation();
+        setTag(el.getAttribute("data-tag"));
+      });
+    });
+    var wrap = $("activeTagWrap");
+    if (state.tag) { wrap.hidden = false; $("activeTag").textContent = state.tag; }
+    else { wrap.hidden = true; }
+  }
+
+  function cardHTML(it) {
+    var cat = catMap[it.c] || { color: "var(--color-accent)", icon: "•", name: "" };
+    var tags = (it.tags || []).map(function (t) {
+      return '<button class="chip" data-tag="' + esc(t) + '">' + esc(t) + "</button>";
+    }).join("");
+    return '<article class="card" data-i="' + it.__i + '" style="--cat:' + esc(cat.color) + '">' +
+      '<div class="card-top"><span class="type-badge">' + esc(it.ty) + '</span>' +
+      '<span class="card-date">' + esc(it.d) + '</span></div>' +
+      '<h3 class="card-title">' + esc(it.t) + '</h3>' +
+      '<p class="card-sum">' + esc(it.s) + '</p>' +
+      (tags ? '<div class="card-tags">' + tags + '</div>' : '') + '</article>';
+  }
+
+  function setTag(t) { state.tag = t; render(); }
+
+  function openModal(i) {
+    var it = ITEMS[i];
+    if (!it) return;
+    var cat = catMap[it.c] || { color: "var(--color-accent)", icon: "•", name: "" };
+    $("modal").style.setProperty("--cat", cat.color);
+    $("modalCat").innerHTML = '<span>' + esc(cat.icon) + "</span><span>" + esc(cat.name) + "</span>";
+    $("modalTitle").textContent = it.t;
+    $("modalMeta").innerHTML =
+      '<span class="meta-item">类型 · ' + esc(it.ty) + "</span>" +
+      '<span class="meta-item">日期 · ' + esc(it.d) + "</span>" +
+      '<span class="meta-item">分类 · ' + esc(cat.name) + "</span>";
+    $("modalSum").textContent = it.s || "（无摘要）";
+    $("modalTags").innerHTML = (it.tags || []).map(function (t) {
+      return '<button class="chip" data-tag="' + esc(t) + '">' + esc(t) + "</button>";
+    }).join("");
+    Array.prototype.forEach.call($("modalTags").querySelectorAll(".chip"), function (el) {
+      el.addEventListener("click", function () { closeModal(); setTag(el.getAttribute("data-tag")); });
+    });
+    $("modalBack").hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal() { $("modalBack").hidden = true; document.body.style.overflow = ""; }
+
+  // events
+  $("searchInput").addEventListener("input", function (e) { state.q = e.target.value; render(); });
+  $("sortSelect").addEventListener("change", function (e) { state.sort = e.target.value; render(); });
+  $("clearTag").addEventListener("click", function () { state.tag = null; render(); });
+  $("modalClose").addEventListener("click", closeModal);
+  $("modalBack").addEventListener("click", function (e) { if (e.target === this) closeModal(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
+
+  // theme
+  var root = document.documentElement;
+  var saved = null;
+  try { saved = localStorage.getItem("ima-theme"); } catch (e) {}
+  if (saved) root.setAttribute("data-theme", saved);
+  $("themeToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("ima-theme", next); } catch (e) {}
+  });
+
+  // init
+  ITEMS.forEach(function (it, i) { it.__i = i; });
+  statCount.textContent = ITEMS.length;
+  buildNav();
+  render();
+})();
+</script>
+</body>
+</html>
